@@ -1,4 +1,4 @@
-# Shutdown Timer TUI (sdt)
+# GoToSleep (gts)
 
 Terminal-based shutdown timer application built with Go and Bubble Tea.
 
@@ -15,6 +15,16 @@ Terminal-based shutdown timer application built with Go and Bubble Tea.
 
 ## Installation
 
+### Quick Install (Recommended)
+
+Install directly from GitHub:
+
+```bash
+go install github.com/kaganyuksek/gotosleep/cmd/gts@latest
+```
+
+This will install `gts` to your `$GOPATH/bin` directory. Make sure this directory is in your PATH.
+
 ### Build from source
 
 ```bash
@@ -29,7 +39,13 @@ go build -o gts.exe ./cmd/gts
 
 ## Usage
 
-Simply run the application:
+After installation with `go install`, simply run:
+
+```bash
+gts
+```
+
+Or if you built from source:
 
 ```bash
 ./gts
@@ -93,9 +109,9 @@ The application accepts various duration formats:
 
 Configuration is stored in:
 
-- **Windows:** `%AppData%\sdt\state.json`
-- **Linux:** `~/.config/sdt/state.json`
-- **macOS:** `~/Library/Application Support/sdt/state.json`
+- **Windows:** `%AppData%\gts\state.json`
+- **Linux:** `~/.config/gts/state.json`
+- **macOS:** `~/Library/Application Support/gts/state.json`
 
 ## Platform Notes
 
@@ -110,7 +126,7 @@ Shutdown commands require `sudo` privileges. You have two options:
 1. Run the application with sudo:
 
    ```bash
-   sudo ./sdt
+   sudo gts
    ```
 
 2. Configure sudoers to allow shutdown without password (advanced):
