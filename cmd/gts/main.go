@@ -8,6 +8,12 @@ import (
 	"github.com/kaganyuksek/gotosleep/internal/app"
 )
 
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 func main() {
 	// Initialize the application
 	model, err := app.NewApp()

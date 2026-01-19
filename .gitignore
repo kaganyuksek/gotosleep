@@ -6,8 +6,8 @@
 *.dylib
 sdt
 sdt.exe
-gts
-gts.exe
+/gts
+/gts.exe
 
 # Test binary, built with `go test -c`
 *.test
@@ -34,3 +34,9 @@ Thumbs.db
 
 # Config files (should not be committed)
 state.json
+
+# GoReleaser
+dist/
+
+# Documentation (internal)
+github-go-cli-release-guide.md
