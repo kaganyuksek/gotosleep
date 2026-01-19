@@ -37,6 +37,3 @@ state.json
 
 # GoReleaser
 dist/
-
-# Documentation (internal)
-github-go-cli-release-guide.md

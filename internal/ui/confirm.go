@@ -20,12 +20,12 @@ type ConfirmModel struct {
 	cancelled bool
 }
 
-// NewConfirmModel creates a new confirm model
-func NewConfirmModel(minutes int) ConfirmModel {
+// NewConfirmModel creates a new confirm model with dry-run setting from config
+func NewConfirmModel(minutes int, dryRunDefault bool) ConfirmModel {
 	return ConfirmModel{
 		message:   "Confirm shutdown",
 		minutes:   minutes,
-		dryRun:    false,
+		dryRun:    dryRunDefault,
 		confirmed: false,
 		cancelled: false,
 	}

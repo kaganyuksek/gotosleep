@@ -168,17 +168,33 @@ func (a *App) updateHome(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return a, a.active.Init()
 			}
 		case "enter":
-			// Try to get duration and show confirm
+			// Try to get duration
 			minutes, err := a.home.GetSelectedDuration()
 			if err != nil {
 				a.home, cmd = a.home.Update(msg)
 				return a, cmd
 			}
 
-			// Show confirm dialog
-			a.confirm = ui.NewConfirmModel(minutes)
-			a.screen = ScreenConfirm
-			return a, nil
+			// Check if confirmation is enabled in settings
+			if a.config.Settings.Confirm {
+				// Show confirm dialog with DryRunDefault from settings
+				a.confirm = ui.NewConfirmModel(minutes, a.config.Settings.DryRunDefault)
+				a.screen = ScreenConfirm
+				return a, nil
+			} else {
+				// Skip confirmation and start immediately with DryRunDefault setting
+				err := a.startShutdown(minutes, a.config.Settings.DryRunDefault)
+				if err != nil {
+					a.err = err.Error()
+					a.home.Reset()
+					return a, nil
+				}
+				// Go to active screen
+				a.screen = ScreenActive
+				a.active.Refresh(a.config)
+				a.home.Reset()
+				return a, a.active.Init()
+			}
 		}
 	}
 
@@ -282,9 +298,25 @@ func (a *App) updateHistory(msg tea.Msg) (tea.Model, tea.Cmd) {
 			selected := a.history.GetSelectedHistory()
 			if selected != nil {
 				minutes := selected.DurationSeconds / 60
-				a.confirm = ui.NewConfirmModel(minutes)
-				a.screen = ScreenConfirm
-				return a, nil
+
+				// Check if confirmation is enabled in settings
+				if a.config.Settings.Confirm {
+					// Use DryRunDefault from settings
+					a.confirm = ui.NewConfirmModel(minutes, a.config.Settings.DryRunDefault)
+					a.screen = ScreenConfirm
+					return a, nil
+				} else {
+					// Skip confirmation and start immediately with DryRunDefault setting
+					err := a.startShutdown(minutes, a.config.Settings.DryRunDefault)
+					if err != nil {
+						a.err = err.Error()
+						return a, nil
+					}
+					// Go to active screen
+					a.screen = ScreenActive
+					a.active.Refresh(a.config)
+					return a, a.active.Init()
+				}
 			}
 		case "d":
 			// Delete selected history item

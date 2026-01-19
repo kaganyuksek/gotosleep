@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"strings"
+
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -145,13 +147,13 @@ func RenderProgressBar(percent float64, width int) string {
 	filled := int((percent / 100.0) * float64(width))
 	empty := width - filled
 
-	bar := ""
+	var bar strings.Builder
 	for i := 0; i < filled; i++ {
-		bar += "█"
+		bar.WriteString("█")
 	}
 	for i := 0; i < empty; i++ {
-		bar += "░"
+		bar.WriteString("░")
 	}
 
-	return ProgressBarStyle.Render(bar)
+	return ProgressBarStyle.Render(bar.String())
 }
