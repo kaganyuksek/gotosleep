@@ -24,7 +24,7 @@ type HomeModel struct {
 func NewHomeModel(cfg *config.Config) HomeModel {
 	ti := textinput.New()
 	ti.Placeholder = "Enter duration (e.g., 60, 1h30m, 00:45)"
-	ti.Focus()
+	ti.Blur()
 	ti.CharLimit = 20
 	ti.Width = 30
 
@@ -52,14 +52,27 @@ func (m HomeModel) Update(msg tea.Msg) (HomeModel, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "1", "2", "3", "4", "5", "6":
-			// Quick preset selection
-			idx := int(msg.String()[0] - '1')
-			if idx >= 0 && idx < len(m.config.Presets) {
-				m.selectedPreset = idx
-				m.err = ""
-				return m, nil
+		case "tab":
+			// Toggle focus between presets and input
+			if m.input.Focused() {
+				m.input.Blur()
+			} else {
+				m.input.Focus()
+				m.selectedPreset = -1 // Clear preset selection when focusing input
 			}
+			return m, textinput.Blink
+
+		case "1", "2", "3", "4", "5", "6":
+			// Quick preset selection - only when input is not focused
+			if !m.input.Focused() {
+				idx := int(msg.String()[0] - '1')
+				if idx >= 0 && idx < len(m.config.Presets) {
+					m.selectedPreset = idx
+					m.err = ""
+					return m, nil
+				}
+			}
+			// If input is focused, let it fall through to text input
 
 		case "enter":
 			// Either use selected preset or parse input
@@ -86,8 +99,10 @@ func (m HomeModel) Update(msg tea.Msg) (HomeModel, tea.Cmd) {
 		}
 	}
 
-	// Update text input
-	m.input, cmd = m.input.Update(msg)
+	// Update text input (only when focused)
+	if m.input.Focused() {
+		m.input, cmd = m.input.Update(msg)
+	}
 	return m, cmd
 }
 
@@ -156,6 +171,7 @@ func (m HomeModel) View() string {
 	// Actions
 	help := ""
 	help += KeyStyle.Render("Enter") + " Start   "
+	help += KeyStyle.Render("Tab") + " Toggle Input   "
 	help += KeyStyle.Render("h") + " History   "
 	help += KeyStyle.Render("s") + " Settings   "
 	if m.config.ActiveJob != nil {
