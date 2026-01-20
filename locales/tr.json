@@ -10,7 +10,7 @@
         "quick_presets": "Hızlı seçenekler",
         "duration": "Süre",
         "error": "Hata",
-        "placeholder": "Süre girin (örn: 60, 1s30d, 00:45)",
+        "placeholder": "Süre girin (örn: 60, 1h30m, 00:45)",
         "error_no_duration": "Lütfen bir seçenek seçin veya süre girin"
     },
     "active": {
