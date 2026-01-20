@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/kaganyuksek/gotosleep/internal/config"
+	"github.com/kaganyuksek/gotosleep/internal/i18n"
 )
 
 // SettingsModel represents the settings screen
@@ -28,12 +29,12 @@ func NewSettingsModel(cfg *config.Config) SettingsModel {
 	ti := textinput.New()
 	ti.CharLimit = 20
 	ti.Width = 20
-	ti.Placeholder = "Label (e.g., 15m)"
+	ti.Placeholder = i18n.T("settings.preset_label_placeholder")
 
 	mi := textinput.New()
 	mi.CharLimit = 5
 	mi.Width = 10
-	mi.Placeholder = "Minutes"
+	mi.Placeholder = i18n.T("settings.preset_minutes_placeholder")
 
 	return SettingsModel{
 		config:       cfg,
@@ -71,7 +72,7 @@ func (m SettingsModel) Update(msg tea.Msg) (SettingsModel, tea.Cmd) {
 						// Save label and move to minutes editing
 						label := m.input.Value()
 						if label == "" {
-							m.err = "Label cannot be empty"
+							m.err = i18n.T("settings.error_label_empty")
 							return m, nil
 						}
 						m.config.Presets[presetIndex].Label = label
@@ -84,7 +85,7 @@ func (m SettingsModel) Update(msg tea.Msg) (SettingsModel, tea.Cmd) {
 						minutes := 0
 						_, err := fmt.Sscanf(m.minutesInput.Value(), "%d", &minutes)
 						if err != nil || minutes <= 0 {
-							m.err = "Invalid minutes value"
+							m.err = i18n.T("settings.error_minutes_invalid")
 							return m, nil
 						}
 						m.config.Presets[presetIndex].Minutes = minutes
@@ -130,7 +131,7 @@ func (m SettingsModel) Update(msg tea.Msg) (SettingsModel, tea.Cmd) {
 		}
 
 		// Navigation
-		itemCount := 2 + len(m.config.Presets) // confirm, dry-run, + presets
+		itemCount := 3 + len(m.config.Presets) // confirm, dry-run, language, + presets
 
 		switch msg.String() {
 		case "up", "k":
@@ -151,9 +152,16 @@ func (m SettingsModel) Update(msg tea.Msg) (SettingsModel, tea.Cmd) {
 				m.config.Settings.Confirm = !m.config.Settings.Confirm
 			} else if m.selectedItem == 1 {
 				m.config.Settings.DryRunDefault = !m.config.Settings.DryRunDefault
-			} else if m.selectedItem >= 2 {
+			} else if m.selectedItem == 2 {
+				// Toggle language between en and tr
+				if m.config.Settings.Language == "en" {
+					m.config.Settings.Language = "tr"
+				} else {
+					m.config.Settings.Language = "en"
+				}
+			} else if m.selectedItem >= 3 {
 				// Edit preset
-				presetIndex := m.selectedItem - 2
+				presetIndex := m.selectedItem - 3
 				if presetIndex < len(m.config.Presets) {
 					m.editing = true
 					m.editingLabel = true
@@ -174,7 +182,7 @@ func (m SettingsModel) View() string {
 	var s strings.Builder
 
 	// Title
-	title := BigTitleStyle.Render("Settings")
+	title := BigTitleStyle.Render(i18n.T("settings.title"))
 	s.WriteString(title + "\n\n")
 
 	// Settings items
@@ -182,8 +190,9 @@ func (m SettingsModel) View() string {
 		label string
 		value string
 	}{
-		{"Always confirm before shutdown", m.formatBool(m.config.Settings.Confirm)},
-		{"Dry-run by default", m.formatBool(m.config.Settings.DryRunDefault)},
+		{i18n.T("settings.confirm_label"), m.formatBool(m.config.Settings.Confirm)},
+		{i18n.T("settings.dry_run_label"), m.formatBool(m.config.Settings.DryRunDefault)},
+		{i18n.T("settings.language"), m.formatLanguage(m.config.Settings.Language)},
 	}
 
 	for i, item := range items {
@@ -199,11 +208,11 @@ func (m SettingsModel) View() string {
 	}
 
 	s.WriteString("\n")
-	s.WriteString(TitleStyle.Render("Presets") + "\n")
+	s.WriteString(TitleStyle.Render(i18n.T("settings.presets_title")) + "\n")
 
 	// Display presets
 	for i, preset := range m.config.Presets {
-		itemIndex := 2 + i
+		itemIndex := 3 + i
 		line := fmt.Sprintf("%s → %d min", preset.Label, preset.Minutes)
 
 		if itemIndex == m.selectedItem && !m.editing {
@@ -218,9 +227,9 @@ func (m SettingsModel) View() string {
 	// Show edit form if editing
 	if m.editing {
 		s.WriteString("\n")
-		s.WriteString(TitleStyle.Render("Edit Preset") + "\n")
+		s.WriteString(TitleStyle.Render(i18n.T("settings.edit_preset")) + "\n")
 
-		labelLine := "Label: " + m.input.View()
+		labelLine := i18n.T("settings.preset_label_placeholder") + ": " + m.input.View()
 		if m.editingLabel {
 			labelLine = ListItemSelectedStyle.Render("▶ " + labelLine)
 		} else {
@@ -228,7 +237,7 @@ func (m SettingsModel) View() string {
 		}
 		s.WriteString(labelLine + "\n")
 
-		minutesLine := "Minutes: " + m.minutesInput.View()
+		minutesLine := i18n.T("settings.preset_minutes_placeholder") + ": " + m.minutesInput.View()
 		if !m.editingLabel {
 			minutesLine = ListItemSelectedStyle.Render("▶ " + minutesLine)
 		} else {
@@ -241,23 +250,23 @@ func (m SettingsModel) View() string {
 
 	// Error message
 	if m.err != "" {
-		s.WriteString(ErrorStyle.Render("Error: "+m.err) + "\n\n")
+		s.WriteString(ErrorStyle.Render(i18n.T("home.error")+": "+m.err) + "\n\n")
 	}
 
 	// Actions
 	help := ""
 	if m.editing {
 		if m.editingLabel {
-			help += KeyStyle.Render("Enter") + " Next   "
+			help += KeyStyle.Render(i18n.T("keys.enter")) + " Next   "
 		} else {
-			help += KeyStyle.Render("Enter") + " Save   "
-			help += KeyStyle.Render("Tab") + " Back   "
+			help += KeyStyle.Render(i18n.T("keys.enter")) + " Save   "
+			help += KeyStyle.Render(i18n.T("keys.tab")) + " " + i18n.T("actions.back") + "   "
 		}
-		help += KeyStyle.Render("Esc") + " Cancel"
+		help += KeyStyle.Render(i18n.T("keys.esc")) + " " + i18n.T("actions.cancel")
 	} else {
-		help += KeyStyle.Render("↑↓") + " Navigate   "
-		help += KeyStyle.Render("Space/Enter") + " Toggle/Edit   "
-		help += KeyStyle.Render("Esc") + " Back"
+		help += KeyStyle.Render(i18n.T("keys.up")+i18n.T("keys.down")) + " Navigate   "
+		help += KeyStyle.Render("Space/"+i18n.T("keys.enter")) + " Toggle/" + i18n.T("actions.edit") + "   "
+		help += KeyStyle.Render(i18n.T("keys.esc")) + " " + i18n.T("actions.back")
 	}
 	s.WriteString(HelpStyle.Render(help))
 
@@ -273,6 +282,18 @@ func (m SettingsModel) formatBool(value bool) string {
 		return lipgloss.NewStyle().Foreground(lipgloss.Color("#04B575")).Bold(true).Render("ON")
 	}
 	return lipgloss.NewStyle().Foreground(lipgloss.Color("#7D7D7D")).Render("OFF")
+}
+
+// formatLanguage formats language code with display name
+func (m SettingsModel) formatLanguage(lang string) string {
+	display := lang
+	switch lang {
+	case "en":
+		display = "English"
+	case "tr":
+		display = "Türkçe"
+	}
+	return lipgloss.NewStyle().Foreground(lipgloss.Color("#7D56F4")).Bold(true).Render(display)
 }
 
 // Refresh updates the settings model with latest config

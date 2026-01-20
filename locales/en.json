@@ -1,0 +1,90 @@
+{
+    "app": {
+        "title": "Shutdown Timer"
+    },
+    "home": {
+        "title": "Shutdown Timer",
+        "status": "Status",
+        "status_active": "Shutdown scheduled",
+        "status_inactive": "No scheduled shutdown",
+        "quick_presets": "Quick presets",
+        "duration": "Duration",
+        "error": "Error",
+        "placeholder": "Enter duration (e.g., 60, 1h30m, 00:45)",
+        "error_no_duration": "Please select a preset or enter a duration"
+    },
+    "active": {
+        "title": "Shutting down in",
+        "started": "Started",
+        "scheduled": "Scheduled",
+        "cancel": "Cancel",
+        "edit": "Edit"
+    },
+    "confirm": {
+        "title": "Confirm Shutdown",
+        "message": "Are you sure you want to schedule a shutdown?",
+        "duration": "Duration",
+        "scheduled_for": "Scheduled for",
+        "dry_run": "Dry Run",
+        "dry_run_help": "(Test mode - won't actually shutdown)",
+        "confirm": "Confirm",
+        "cancel": "Cancel"
+    },
+    "history": {
+        "title": "History",
+        "empty": "No history yet",
+        "scroll_indicator": "Use ↑↓ to scroll",
+        "status_ok": "OK",
+        "status_cancelled": "Cancelled",
+        "status_failed": "Failed",
+        "status_dry_run": "Dry-run",
+        "restart": "Restart",
+        "delete": "Delete"
+    },
+    "settings": {
+        "title": "Settings",
+        "confirm_label": "Confirmation Dialog",
+        "confirm_enabled": "Enabled",
+        "confirm_disabled": "Disabled",
+        "dry_run_label": "Dry Run Default",
+        "dry_run_enabled": "Enabled",
+        "dry_run_disabled": "Disabled",
+        "language": "Language",
+        "presets_title": "Presets",
+        "add_preset": "Add Preset",
+        "edit_preset": "Edit",
+        "delete_preset": "Delete",
+        "preset_label_placeholder": "Label (e.g., 15m)",
+        "preset_minutes_placeholder": "Minutes",
+        "error_label_empty": "Label cannot be empty",
+        "error_minutes_invalid": "Invalid minutes value"
+    },
+    "keys": {
+        "enter": "Enter",
+        "tab": "Tab",
+        "esc": "Esc",
+        "quit": "q",
+        "history": "h",
+        "settings": "s",
+        "active": "a",
+        "up": "↑",
+        "down": "↓"
+    },
+    "actions": {
+        "start": "Start",
+        "toggle_input": "Toggle Input",
+        "history": "History",
+        "settings": "Settings",
+        "active": "Active",
+        "quit": "Quit",
+        "back": "Back",
+        "cancel": "Cancel",
+        "edit": "Edit",
+        "toggle": "Toggle",
+        "restart": "Restart",
+        "delete": "Delete"
+    },
+    "warnings": {
+        "active_shutdown": "Warning: Active shutdown will not be cancelled"
+    }
+}

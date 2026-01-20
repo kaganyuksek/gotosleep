@@ -1,0 +1,90 @@
+{
+    "app": {
+        "title": "Kapatma Zamanlayıcı"
+    },
+    "home": {
+        "title": "Kapatma Zamanlayıcı",
+        "status": "Durum",
+        "status_active": "Kapatma zamanlandı",
+        "status_inactive": "Zamanlanmış kapatma yok",
+        "quick_presets": "Hızlı seçenekler",
+        "duration": "Süre",
+        "error": "Hata",
+        "placeholder": "Süre girin (örn: 60, 1s30d, 00:45)",
+        "error_no_duration": "Lütfen bir seçenek seçin veya süre girin"
+    },
+    "active": {
+        "title": "Kapatılıyor",
+        "started": "Başlangıç",
+        "scheduled": "Zamanlandı",
+        "cancel": "İptal",
+        "edit": "Düzenle"
+    },
+    "confirm": {
+        "title": "Kapatmayı Onayla",
+        "message": "Kapatma zamanlamak istediğinizden emin misiniz?",
+        "duration": "Süre",
+        "scheduled_for": "Zamanlanan saat",
+        "dry_run": "Test Modu",
+        "dry_run_help": "(Test modu - gerçekten kapatmaz)",
+        "confirm": "Onayla",
+        "cancel": "İptal"
+    },
+    "history": {
+        "title": "Geçmiş",
+        "empty": "Henüz geçmiş yok",
+        "scroll_indicator": "Kaydırmak için ↑↓ kullanın",
+        "status_ok": "Tamam",
+        "status_cancelled": "İptal Edildi",
+        "status_failed": "Başarısız",
+        "status_dry_run": "Test",
+        "restart": "Yeniden Başlat",
+        "delete": "Sil"
+    },
+    "settings": {
+        "title": "Ayarlar",
+        "confirm_label": "Onay Penceresi",
+        "confirm_enabled": "Açık",
+        "confirm_disabled": "Kapalı",
+        "dry_run_label": "Varsayılan Test Modu",
+        "dry_run_enabled": "Açık",
+        "dry_run_disabled": "Kapalı",
+        "language": "Dil",
+        "presets_title": "Ön Ayarlar",
+        "add_preset": "Ön Ayar Ekle",
+        "edit_preset": "Düzenle",
+        "delete_preset": "Sil",
+        "preset_label_placeholder": "Etiket (örn: 15d)",
+        "preset_minutes_placeholder": "Dakika",
+        "error_label_empty": "Etiket boş olamaz",
+        "error_minutes_invalid": "Geçersiz dakika değeri"
+    },
+    "keys": {
+        "enter": "Enter",
+        "tab": "Tab",
+        "esc": "Esc",
+        "quit": "q",
+        "history": "h",
+        "settings": "s",
+        "active": "a",
+        "up": "↑",
+        "down": "↓"
+    },
+    "actions": {
+        "start": "Başlat",
+        "toggle_input": "Giriş Değiştir",
+        "history": "Geçmiş",
+        "settings": "Ayarlar",
+        "active": "Aktif",
+        "quit": "Çıkış",
+        "back": "Geri",
+        "cancel": "İptal",
+        "edit": "Düzenle",
+        "toggle": "Değiştir",
+        "restart": "Yeniden Başlat",
+        "delete": "Sil"
+    },
+    "warnings": {
+        "active_shutdown": "Uyarı: Aktif kapatma iptal edilmeyecek"
+    }
+}

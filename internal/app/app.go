@@ -6,6 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/kaganyuksek/gotosleep/internal/config"
+	"github.com/kaganyuksek/gotosleep/internal/i18n"
 	"github.com/kaganyuksek/gotosleep/internal/shutdown"
 	"github.com/kaganyuksek/gotosleep/internal/ui"
 	"github.com/kaganyuksek/gotosleep/internal/utils"
@@ -43,6 +44,11 @@ func NewApp() (*App, error) {
 	cfg, err := config.Load()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load config: %w", err)
+	}
+
+	// Initialize i18n with configured language
+	if err := i18n.Init(cfg.Settings.Language); err != nil {
+		return nil, fmt.Errorf("failed to initialize i18n: %w", err)
 	}
 
 	executor := shutdown.NewExecutor()
@@ -338,6 +344,9 @@ func (a *App) updateHistory(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (a *App) updateSettings(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
+	// Track previous language
+	prevLang := a.config.Settings.Language
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -350,6 +359,11 @@ func (a *App) updateSettings(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	a.settings, cmd = a.settings.Update(msg)
+
+	// Check if language changed and reload translations
+	if a.config.Settings.Language != prevLang {
+		_ = i18n.SetLanguage(a.config.Settings.Language)
+	}
 
 	// Always save settings after update (for toggles)
 	a.config.Save()

@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/kaganyuksek/gotosleep/internal/config"
+	"github.com/kaganyuksek/gotosleep/internal/i18n"
 	"github.com/kaganyuksek/gotosleep/internal/utils"
 )
 
@@ -93,7 +94,7 @@ func (m ActiveModel) View() string {
 	}
 
 	// Title
-	title := BigTitleStyle.Render("Shutting down in")
+	title := BigTitleStyle.Render(i18n.T("active.title"))
 	s.WriteString(title + "\n\n")
 
 	// Calculate dynamic widths based on content area (inside the border)
@@ -128,17 +129,19 @@ func (m ActiveModel) View() string {
 	s.WriteString("\n\n")
 
 	// Scheduled time info
-	info := fmt.Sprintf("Started: %s  →  Scheduled: %s",
+	info := fmt.Sprintf("%s: %s  →  %s: %s",
+		i18n.T("active.started"),
 		m.startTime.Format("15:04:05"),
+		i18n.T("active.scheduled"),
 		m.endTime.Format("15:04:05"))
 	s.WriteString(StatusStyle.Render(info) + "\n\n")
 
 	// Actions
 	help := ""
-	help += KeyStyle.Render("c") + " Cancel   "
-	help += KeyStyle.Render("e") + " Edit   "
-	help += KeyStyle.Render("h") + " History   "
-	help += KeyStyle.Render("Esc") + " Back"
+	help += KeyStyle.Render("c") + " " + i18n.T("active.cancel") + "   "
+	help += KeyStyle.Render("e") + " " + i18n.T("active.edit") + "   "
+	help += KeyStyle.Render(i18n.T("keys.history")) + " " + i18n.T("actions.history") + "   "
+	help += KeyStyle.Render(i18n.T("keys.esc")) + " " + i18n.T("actions.back")
 	s.WriteString(HelpStyle.Render(help))
 
 	// Wrap in box with responsive width
