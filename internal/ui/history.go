@@ -119,14 +119,14 @@ func (m HistoryModel) View() string {
 			// Format status with color
 			statusStr := ""
 			switch h.Status {
-			case "ok":
-				statusStr = lipgloss.NewStyle().Foreground(lipgloss.Color("#04B575")).Render("OK")
-			case "cancelled":
-				statusStr = lipgloss.NewStyle().Foreground(lipgloss.Color("#FFD93D")).Render("Cancelled")
-			case "failed":
-				statusStr = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF6B6B")).Render("Failed")
-			case "dry-run":
-				statusStr = lipgloss.NewStyle().Foreground(lipgloss.Color("#7D7D7D")).Render("Dry-run")
+			case config.StatusOK:
+				statusStr = lipgloss.NewStyle().Foreground(secondaryColor).Render("OK")
+			case config.StatusCancelled:
+				statusStr = lipgloss.NewStyle().Foreground(warningColor).Render("Cancelled")
+			case config.StatusFailed:
+				statusStr = lipgloss.NewStyle().Foreground(errorColor).Render("Failed")
+			case config.StatusDryRun:
+				statusStr = lipgloss.NewStyle().Foreground(dimColor).Render("Dry-run")
 			default:
 				statusStr = h.Status
 			}
@@ -134,7 +134,7 @@ func (m HistoryModel) View() string {
 			// Format line
 			line := fmt.Sprintf("%s  %s  → %s  %s",
 				dateStr,
-				lipgloss.NewStyle().Foreground(lipgloss.Color("#7D56F4")).Bold(true).Render(durationStr),
+				lipgloss.NewStyle().Foreground(primaryColor).Bold(true).Render(durationStr),
 				scheduledStr,
 				statusStr,
 			)

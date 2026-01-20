@@ -108,6 +108,17 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
 	}
 
+	// Check if active job has expired and clean it up
+	if cfg.ActiveJob != nil {
+		now := time.Now()
+		if now.After(cfg.ActiveJob.EndTime) {
+			// Job has expired, clear it
+			cfg.ActiveJob = nil
+			// Save the cleaned config
+			_ = cfg.Save()
+		}
+	}
+
 	return &cfg, nil
 }
 

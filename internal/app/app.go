@@ -376,7 +376,7 @@ func (a *App) startShutdown(minutes int, dryRun bool) error {
 			CreatedAt:       time.Now(),
 			DurationSeconds: minutes * 60,
 			ScheduledFor:    jobInfo.EndTime,
-			Status:          "failed",
+			Status:          config.StatusFailed,
 			OS:              a.executor.GetOS(),
 			Command:         command,
 		}
@@ -384,8 +384,6 @@ func (a *App) startShutdown(minutes int, dryRun bool) error {
 		a.config.Save()
 		return err
 	}
-
-	jobInfo.Command = command
 
 	// Update config with active job
 	a.config.ActiveJob = &config.ActiveJob{
@@ -396,9 +394,9 @@ func (a *App) startShutdown(minutes int, dryRun bool) error {
 	}
 
 	// Add to history
-	status := "ok"
+	status := config.StatusOK
 	if dryRun {
-		status = "dry-run"
+		status = config.StatusDryRun
 	}
 	h := config.History{
 		ID:              utils.GenerateID(),
@@ -423,7 +421,7 @@ func (a *App) cancelShutdown() error {
 
 	// Determine if it was a dry-run
 	dryRun := false
-	if len(a.config.History) > 0 && a.config.History[0].Status == "dry-run" {
+	if len(a.config.History) > 0 && a.config.History[0].Status == config.StatusDryRun {
 		dryRun = true
 	}
 
@@ -431,10 +429,10 @@ func (a *App) cancelShutdown() error {
 	err := a.executor.Cancel(dryRun)
 	if err != nil {
 		// Update history status to failed
-		a.config.UpdateHistoryStatus("failed")
+		a.config.UpdateHistoryStatus(config.StatusFailed)
 	} else {
 		// Update history status to cancelled
-		a.config.UpdateHistoryStatus("cancelled")
+		a.config.UpdateHistoryStatus(config.StatusCancelled)
 	}
 
 	// Clear active job
@@ -447,4 +445,17 @@ func (a *App) cancelShutdown() error {
 	}
 
 	return err
+}
+
+// Cleanup performs cleanup tasks before application exit
+func (a *App) Cleanup() {
+	if a.config.ActiveJob != nil {
+		// Check if job has expired
+		now := time.Now()
+		if now.After(a.config.ActiveJob.EndTime) {
+			// Job has expired, clear it
+			a.config.ActiveJob = nil
+			_ = a.config.Save()
+		}
+	}
 }
