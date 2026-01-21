@@ -1,12 +1,16 @@
 package i18n
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 )
+
+//go:embed locales/*.json
+var localesFS embed.FS
 
 // Translator handles internationalization
 type Translator struct {
@@ -36,24 +40,29 @@ func Init(language string) error {
 
 // loadTranslations loads translation file for current language
 func (t *Translator) loadTranslations() error {
-	// Get executable directory
-	exePath, err := os.Executable()
+	filename := fmt.Sprintf("locales/%s.json", t.language)
+
+	// First try to read from embedded files
+	data, err := localesFS.ReadFile(filename)
 	if err != nil {
-		return err
-	}
-	exeDir := filepath.Dir(exePath)
+		// Fallback: try to read from filesystem (for development or custom translations)
+		// Get executable directory
+		exePath, err := os.Executable()
+		if err == nil {
+			exeDir := filepath.Dir(exePath)
+			localesPath := filepath.Join(exeDir, "locales", t.language+".json")
 
-	// Try locales directory relative to executable
-	localesPath := filepath.Join(exeDir, "locales", t.language+".json")
-
-	// If not found, try relative to working directory (for development)
-	if _, err := os.Stat(localesPath); os.IsNotExist(err) {
-		localesPath = filepath.Join("locales", t.language+".json")
-	}
-
-	data, err := os.ReadFile(localesPath)
-	if err != nil {
-		return fmt.Errorf("failed to read translation file: %w", err)
+			// Try executable directory
+			if data, err = os.ReadFile(localesPath); err != nil {
+				// Try working directory
+				localesPath = filepath.Join("locales", t.language+".json")
+				if data, err = os.ReadFile(localesPath); err != nil {
+					return fmt.Errorf("failed to read translation file: %w", err)
+				}
+			}
+		} else {
+			return fmt.Errorf("failed to read translation file: %w", err)
+		}
 	}
 
 	var translations map[string]interface{}

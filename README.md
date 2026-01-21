@@ -105,6 +105,46 @@ The application accepts various duration formats:
 - `00:45` - 45 minutes
 - `1:20` - 1 hour 20 minutes
 
+## Internationalization (i18n)
+
+GoToSleep supports multiple languages. The application includes built-in support for:
+
+- 🇬🇧 English (`en`)
+- 🇹🇷 Turkish (`tr`)
+
+### Adding Custom Languages
+
+You can add your own language translations by creating a JSON file in the `locales/` directory next to the executable:
+
+```
+gts.exe
+locales/
+  ru.json    ← Your custom Russian translations
+  de.json    ← Your custom German translations
+```
+
+The translation files use dot-notation keys. Example `ru.json`:
+
+```json
+{
+  "app": {
+    "name": "GoToSleep",
+    "description": "Инструмент управления сном компьютера"
+  },
+  "home": {
+    "title": "Добро пожаловать в GoToSleep",
+    "shutdown_at": "Выключение в"
+  }
+}
+```
+
+**How it works:**
+1. The application first checks for embedded translations (English, Turkish)
+2. If the requested language is not embedded, it looks for a JSON file in the `locales/` directory
+3. This allows users to add custom languages without recompiling
+
+You can use `en.json` or `tr.json` from the repository as a template for creating new translations.
+
 ## Configuration
 
 Configuration is stored in:

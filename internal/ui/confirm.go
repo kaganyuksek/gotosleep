@@ -76,16 +76,16 @@ func (m ConfirmModel) View() string {
 	s.WriteString(lipgloss.NewStyle().Bold(true).Render(msg) + "\n\n")
 
 	// Options
-	yesBtn := KeyStyle.Render("[Y]") + " Yes   "
-	noBtn := KeyStyle.Render("[N]") + " No   "
+	yesBtn := KeyStyle.Render("[Y]") + " " + i18n.T("confirm.yes") + "   "
+	noBtn := KeyStyle.Render("[N]") + " " + i18n.T("confirm.no") + "   "
 	s.WriteString(yesBtn + noBtn + "\n\n")
 
 	// Dry-run toggle
 	dryRunLabel := i18n.T("confirm.dry_run") + ": "
 	if m.dryRun {
-		dryRunLabel += lipgloss.NewStyle().Foreground(lipgloss.Color("#04B575")).Render("✓ ON")
+		dryRunLabel += lipgloss.NewStyle().Foreground(lipgloss.Color("#04B575")).Render("✓ " + i18n.T("confirm.on"))
 	} else {
-		dryRunLabel += lipgloss.NewStyle().Foreground(lipgloss.Color("#7D7D7D")).Render("✗ OFF")
+		dryRunLabel += lipgloss.NewStyle().Foreground(lipgloss.Color("#7D7D7D")).Render("✗ " + i18n.T("confirm.off"))
 	}
 	dryRunLabel += "  " + KeyStyle.Render("[D]") + " " + i18n.T("actions.toggle")
 	s.WriteString(dryRunLabel + "\n")
