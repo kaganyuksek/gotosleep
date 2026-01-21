@@ -6,6 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/kaganyuksek/gotosleep/internal/config"
+	"github.com/kaganyuksek/gotosleep/internal/i18n"
 	"github.com/kaganyuksek/gotosleep/internal/shutdown"
 	"github.com/kaganyuksek/gotosleep/internal/ui"
 	"github.com/kaganyuksek/gotosleep/internal/utils"
@@ -43,6 +44,11 @@ func NewApp() (*App, error) {
 	cfg, err := config.Load()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load config: %w", err)
+	}
+
+	// Initialize i18n with configured language
+	if err := i18n.Init(cfg.Settings.Language); err != nil {
+		return nil, fmt.Errorf("failed to initialize i18n: %w", err)
 	}
 
 	executor := shutdown.NewExecutor()
@@ -338,6 +344,9 @@ func (a *App) updateHistory(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (a *App) updateSettings(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
+	// Track previous language
+	prevLang := a.config.Settings.Language
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -350,6 +359,11 @@ func (a *App) updateSettings(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	a.settings, cmd = a.settings.Update(msg)
+
+	// Check if language changed and reload translations
+	if a.config.Settings.Language != prevLang {
+		_ = i18n.SetLanguage(a.config.Settings.Language)
+	}
 
 	// Always save settings after update (for toggles)
 	a.config.Save()
@@ -376,7 +390,7 @@ func (a *App) startShutdown(minutes int, dryRun bool) error {
 			CreatedAt:       time.Now(),
 			DurationSeconds: minutes * 60,
 			ScheduledFor:    jobInfo.EndTime,
-			Status:          "failed",
+			Status:          config.StatusFailed,
 			OS:              a.executor.GetOS(),
 			Command:         command,
 		}
@@ -384,8 +398,6 @@ func (a *App) startShutdown(minutes int, dryRun bool) error {
 		a.config.Save()
 		return err
 	}
-
-	jobInfo.Command = command
 
 	// Update config with active job
 	a.config.ActiveJob = &config.ActiveJob{
@@ -396,9 +408,9 @@ func (a *App) startShutdown(minutes int, dryRun bool) error {
 	}
 
 	// Add to history
-	status := "ok"
+	status := config.StatusOK
 	if dryRun {
-		status = "dry-run"
+		status = config.StatusDryRun
 	}
 	h := config.History{
 		ID:              utils.GenerateID(),
@@ -423,7 +435,7 @@ func (a *App) cancelShutdown() error {
 
 	// Determine if it was a dry-run
 	dryRun := false
-	if len(a.config.History) > 0 && a.config.History[0].Status == "dry-run" {
+	if len(a.config.History) > 0 && a.config.History[0].Status == config.StatusDryRun {
 		dryRun = true
 	}
 
@@ -431,10 +443,10 @@ func (a *App) cancelShutdown() error {
 	err := a.executor.Cancel(dryRun)
 	if err != nil {
 		// Update history status to failed
-		a.config.UpdateHistoryStatus("failed")
+		a.config.UpdateHistoryStatus(config.StatusFailed)
 	} else {
 		// Update history status to cancelled
-		a.config.UpdateHistoryStatus("cancelled")
+		a.config.UpdateHistoryStatus(config.StatusCancelled)
 	}
 
 	// Clear active job
@@ -447,4 +459,17 @@ func (a *App) cancelShutdown() error {
 	}
 
 	return err
+}
+
+// Cleanup performs cleanup tasks before application exit
+func (a *App) Cleanup() {
+	if a.config.ActiveJob != nil {
+		// Check if job has expired
+		now := time.Now()
+		if now.After(a.config.ActiveJob.EndTime) {
+			// Job has expired, clear it
+			a.config.ActiveJob = nil
+			_ = a.config.Save()
+		}
+	}
 }

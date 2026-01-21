@@ -6,6 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/kaganyuksek/gotosleep/internal/i18n"
 	"github.com/kaganyuksek/gotosleep/internal/utils"
 )
 
@@ -23,7 +24,7 @@ type ConfirmModel struct {
 // NewConfirmModel creates a new confirm model with dry-run setting from config
 func NewConfirmModel(minutes int, dryRunDefault bool) ConfirmModel {
 	return ConfirmModel{
-		message:   "Confirm shutdown",
+		message:   i18n.T("confirm.title"),
 		minutes:   minutes,
 		dryRun:    dryRunDefault,
 		confirmed: false,
@@ -71,7 +72,7 @@ func (m ConfirmModel) View() string {
 
 	// Message
 	durationStr := utils.FormatDuration(m.minutes)
-	msg := fmt.Sprintf("Shutdown in %s?", durationStr)
+	msg := fmt.Sprintf("%s %s?", i18n.T("confirm.message"), durationStr)
 	s.WriteString(lipgloss.NewStyle().Bold(true).Render(msg) + "\n\n")
 
 	// Options
@@ -80,17 +81,17 @@ func (m ConfirmModel) View() string {
 	s.WriteString(yesBtn + noBtn + "\n\n")
 
 	// Dry-run toggle
-	dryRunLabel := "Dry-run: "
+	dryRunLabel := i18n.T("confirm.dry_run") + ": "
 	if m.dryRun {
 		dryRunLabel += lipgloss.NewStyle().Foreground(lipgloss.Color("#04B575")).Render("✓ ON")
 	} else {
 		dryRunLabel += lipgloss.NewStyle().Foreground(lipgloss.Color("#7D7D7D")).Render("✗ OFF")
 	}
-	dryRunLabel += "  " + KeyStyle.Render("[D]") + " Toggle"
+	dryRunLabel += "  " + KeyStyle.Render("[D]") + " " + i18n.T("actions.toggle")
 	s.WriteString(dryRunLabel + "\n")
 
 	if m.dryRun {
-		s.WriteString(WarningStyle.Render("(Command will not be executed)") + "\n")
+		s.WriteString(WarningStyle.Render(i18n.T("confirm.dry_run_help")) + "\n")
 	}
 
 	// Wrap in box with responsive width

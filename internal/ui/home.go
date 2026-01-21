@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/kaganyuksek/gotosleep/internal/config"
+	"github.com/kaganyuksek/gotosleep/internal/i18n"
 	"github.com/kaganyuksek/gotosleep/internal/utils"
 )
 
@@ -23,7 +24,7 @@ type HomeModel struct {
 // NewHomeModel creates a new home model
 func NewHomeModel(cfg *config.Config) HomeModel {
 	ti := textinput.New()
-	ti.Placeholder = "Enter duration (e.g., 60, 1h30m, 00:45)"
+	ti.Placeholder = i18n.T("home.placeholder")
 	ti.Blur()
 	ti.CharLimit = 20
 	ti.Width = 30
@@ -89,7 +90,7 @@ func (m HomeModel) Update(msg tea.Msg) (HomeModel, tea.Cmd) {
 				return m, nil // Signal to parent that we want to start
 			}
 
-			m.err = "Please select a preset or enter a duration"
+			m.err = i18n.T("home.error_no_duration")
 			return m, nil
 
 		case "esc":
@@ -111,20 +112,20 @@ func (m HomeModel) View() string {
 	var s strings.Builder
 
 	// Title
-	title := BigTitleStyle.Render("⏻  Shutdown Timer")
+	title := BigTitleStyle.Render(i18n.T("home.title"))
 	s.WriteString(title + "\n\n")
 
 	// Status
-	status := "Status: "
+	status := i18n.T("home.status") + ": "
 	if m.config.ActiveJob != nil {
-		status += StatusActiveStyle.Render("Shutdown scheduled")
+		status += StatusActiveStyle.Render(i18n.T("home.status_active"))
 	} else {
-		status += StatusStyle.Render("No scheduled shutdown")
+		status += StatusStyle.Render(i18n.T("home.status_inactive"))
 	}
 	s.WriteString(status + "\n\n")
 
 	// Quick presets
-	s.WriteString(TitleStyle.Render("Quick presets:") + "\n")
+	s.WriteString(TitleStyle.Render(i18n.T("home.quick_presets")+":") + "\n")
 	presetLine := ""
 	currentLineWidth := 0
 	maxLineWidth := max(m.width-8, 80) // Use full available width
@@ -160,24 +161,24 @@ func (m HomeModel) View() string {
 	s.WriteString("\n")
 
 	// Duration input
-	s.WriteString(TitleStyle.Render("Duration:") + "\n")
+	s.WriteString(TitleStyle.Render(i18n.T("home.duration")+":") + "\n")
 	s.WriteString(m.input.View() + "\n\n")
 
 	// Error message
 	if m.err != "" {
-		s.WriteString(ErrorStyle.Render("Error: "+m.err) + "\n\n")
+		s.WriteString(ErrorStyle.Render(i18n.T("home.error")+": "+m.err) + "\n\n")
 	}
 
 	// Actions
 	help := ""
-	help += KeyStyle.Render("Enter") + " Start   "
-	help += KeyStyle.Render("Tab") + " Toggle Input   "
-	help += KeyStyle.Render("h") + " History   "
-	help += KeyStyle.Render("s") + " Settings   "
+	help += KeyStyle.Render(i18n.T("keys.enter")) + " " + i18n.T("actions.start") + "   "
+	help += KeyStyle.Render(i18n.T("keys.tab")) + " " + i18n.T("actions.toggle_input") + "   "
+	help += KeyStyle.Render(i18n.T("keys.history")) + " " + i18n.T("actions.history") + "   "
+	help += KeyStyle.Render(i18n.T("keys.settings")) + " " + i18n.T("actions.settings") + "   "
 	if m.config.ActiveJob != nil {
-		help += KeyStyle.Render("a") + " Active   "
+		help += KeyStyle.Render(i18n.T("keys.active")) + " " + i18n.T("actions.active") + "   "
 	}
-	help += KeyStyle.Render("q") + " Quit"
+	help += KeyStyle.Render(i18n.T("keys.quit")) + " " + i18n.T("actions.quit")
 	s.WriteString(HelpStyle.Render(help))
 
 	// Wrap in box with responsive width

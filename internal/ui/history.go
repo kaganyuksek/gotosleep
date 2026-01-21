@@ -7,6 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/kaganyuksek/gotosleep/internal/config"
+	"github.com/kaganyuksek/gotosleep/internal/i18n"
 	"github.com/kaganyuksek/gotosleep/internal/utils"
 )
 
@@ -89,12 +90,12 @@ func (m HistoryModel) View() string {
 	var s strings.Builder
 
 	// Title
-	title := BigTitleStyle.Render("History")
+	title := BigTitleStyle.Render(i18n.T("history.title"))
 	s.WriteString(title + "\n\n")
 
 	// Check if history is empty
 	if len(m.config.History) == 0 {
-		s.WriteString(StatusStyle.Render("No history yet") + "\n\n")
+		s.WriteString(StatusStyle.Render(i18n.T("history.empty")) + "\n\n")
 	} else {
 		// Display history items
 		visibleItems := 10 // Show 10 items max
@@ -119,14 +120,14 @@ func (m HistoryModel) View() string {
 			// Format status with color
 			statusStr := ""
 			switch h.Status {
-			case "ok":
-				statusStr = lipgloss.NewStyle().Foreground(lipgloss.Color("#04B575")).Render("OK")
-			case "cancelled":
-				statusStr = lipgloss.NewStyle().Foreground(lipgloss.Color("#FFD93D")).Render("Cancelled")
-			case "failed":
-				statusStr = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF6B6B")).Render("Failed")
-			case "dry-run":
-				statusStr = lipgloss.NewStyle().Foreground(lipgloss.Color("#7D7D7D")).Render("Dry-run")
+			case config.StatusOK:
+				statusStr = lipgloss.NewStyle().Foreground(secondaryColor).Render(i18n.T("history.status_ok"))
+			case config.StatusCancelled:
+				statusStr = lipgloss.NewStyle().Foreground(warningColor).Render(i18n.T("history.status_cancelled"))
+			case config.StatusFailed:
+				statusStr = lipgloss.NewStyle().Foreground(errorColor).Render(i18n.T("history.status_failed"))
+			case config.StatusDryRun:
+				statusStr = lipgloss.NewStyle().Foreground(dimColor).Render(i18n.T("history.status_dry_run"))
 			default:
 				statusStr = h.Status
 			}
@@ -134,7 +135,7 @@ func (m HistoryModel) View() string {
 			// Format line
 			line := fmt.Sprintf("%s  %s  → %s  %s",
 				dateStr,
-				lipgloss.NewStyle().Foreground(lipgloss.Color("#7D56F4")).Bold(true).Render(durationStr),
+				lipgloss.NewStyle().Foreground(primaryColor).Bold(true).Render(durationStr),
 				scheduledStr,
 				statusStr,
 			)
@@ -152,7 +153,7 @@ func (m HistoryModel) View() string {
 		// Show scroll indicator if needed
 		if len(m.config.History) > visibleItems {
 			indicator := fmt.Sprintf("\n%s (%d/%d)",
-				StatusStyle.Render("Use ↑↓ to scroll"),
+				StatusStyle.Render(i18n.T("history.scroll_indicator")),
 				m.selectedItem+1,
 				len(m.config.History),
 			)
@@ -165,10 +166,10 @@ func (m HistoryModel) View() string {
 	// Actions
 	help := ""
 	if len(m.config.History) > 0 {
-		help += KeyStyle.Render("Enter") + " Restart   "
-		help += KeyStyle.Render("d") + " Delete   "
+		help += KeyStyle.Render(i18n.T("keys.enter")) + " " + i18n.T("actions.restart") + "   "
+		help += KeyStyle.Render("d") + " " + i18n.T("actions.delete") + "   "
 	}
-	help += KeyStyle.Render("Esc") + " Back"
+	help += KeyStyle.Render(i18n.T("keys.esc")) + " " + i18n.T("actions.back")
 	s.WriteString(HelpStyle.Render(help))
 
 	// Wrap in box with responsive width

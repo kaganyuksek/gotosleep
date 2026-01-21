@@ -37,8 +37,9 @@ type History struct {
 
 // Settings represents application settings
 type Settings struct {
-	Confirm       bool `json:"confirm"`
-	DryRunDefault bool `json:"dry_run_default"`
+	Confirm       bool   `json:"confirm"`
+	DryRunDefault bool   `json:"dry_run_default"`
+	Language      string `json:"language"`
 }
 
 // ActiveJob represents currently running shutdown job
@@ -66,6 +67,7 @@ func DefaultConfig() *Config {
 		Settings: Settings{
 			Confirm:       true,
 			DryRunDefault: false,
+			Language:      "en",
 		},
 		ActiveJob: nil,
 	}
@@ -106,6 +108,17 @@ func Load() (*Config, error) {
 	var cfg Config
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
+	}
+
+	// Check if active job has expired and clean it up
+	if cfg.ActiveJob != nil {
+		now := time.Now()
+		if now.After(cfg.ActiveJob.EndTime) {
+			// Job has expired, clear it
+			cfg.ActiveJob = nil
+			// Save the cleaned config
+			_ = cfg.Save()
+		}
 	}
 
 	return &cfg, nil
